@@ -1,0 +1,152 @@
+
+
+body {
+    font-family: Arial;
+    background: linear-gradient(135deg,#1e3c72,#2a5298);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+.container {
+    background:white;
+    padding:40px;
+    border-radius:15px;
+    width:350px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.3);
+    text-align:center;
+}
+
+input {
+    width:100%;
+    padding:10px;
+    margin:10px 0;
+    border-radius:8px;
+    border:1px solid #ccc;
+}
+
+button {
+    width:100%;
+    padding:10px;
+    background:#1e3c72;
+    color:white;
+    border:none;
+    border-radius:8px;
+}
+
+/* Reset */
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* Background */
+body{
+    height:100vh;
+    background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+/* Container */
+.login-container{
+    width:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+/* Card */
+.login-card{
+    background:#ffffff;
+    width:400px;
+    padding:40px;
+    border-radius:15px;
+    box-shadow:0 15px 35px rgba(0,0,0,0.4);
+    text-align:center;
+}
+
+/* Logo */
+.logo-section h1{
+    color:#2c5364;
+    margin-bottom:5px;
+}
+
+.logo-section p{
+    font-size:14px;
+    color:#666;
+    margin-bottom:25px;
+}
+
+/* Input Group */
+.input-group{
+    text-align:left;
+    margin-bottom:20px;
+}
+
+.input-group label{
+    font-size:14px;
+    color:#333;
+}
+
+.input-group input{
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    transition:0.3s;
+}
+
+.input-group input:focus{
+    border-color:#2c5364;
+    outline:none;
+    box-shadow:0 0 5px rgba(44,83,100,0.4);
+}
+
+/* Button */
+.login-btn{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    background:#2c5364;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.login-btn:hover{
+    background:#203a43;
+}
+
+/* Links */
+.extra-links{
+    margin-top:20px;
+    font-size:14px;
+}
+
+.extra-links a{
+    color:#2c5364;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+.extra-links a:hover{
+    text-decoration:underline;
+}
+
+/* Error Message */
+.error-msg{
+    margin-top:15px;
+    padding:10px;
+    background:#ffdddd;
+    color:#a94442;
+    border-radius:5px;
+    font-size:14px;
+}
