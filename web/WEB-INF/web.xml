@@ -29,5 +29,35 @@
         <servlet-name>RegisterServlet</servlet-name>
         <url-pattern>/RegisterServlet</url-pattern>
     </servlet-mapping>
+    
+    <servlet>
+    <servlet-name>AddReceptionistServlet</servlet-name>
+    <servlet-class>com.oceanview.controller.AddReceptionistServlet</servlet-class>
+</servlet>
+
+<servlet-mapping>
+    <servlet-name>AddReceptionistServlet</servlet-name>
+    <url-pattern>/AddReceptionistServlet</url-pattern>
+</servlet-mapping>
+
+<servlet>
+    <servlet-name>AddReservationServlet</servlet-name>
+    <servlet-class>com.oceanview.controller.AddReservationServlet</servlet-class>
+</servlet>
+
+<servlet-mapping>
+    <servlet-name>AddReservationServlet</servlet-name>
+    <url-pattern>/AddReservationServlet</url-pattern>
+</servlet-mapping>
+
+<servlet>
+    <servlet-name>AddRoomServlet</servlet-name>
+    <servlet-class>com.oceanview.controller.AddRoomServlet</servlet-class>
+</servlet>
+
+<servlet-mapping>
+    <servlet-name>AddRoomServlet</servlet-name>
+    <url-pattern>/AddRoomServlet</url-pattern>
+</servlet-mapping>
 
 </web-app>

@@ -11,16 +11,15 @@ public boolean registerUser(User user) {
 
     String sql = "INSERT INTO users (firstname, lastname, username, password, email, role, contact_number, address) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-    try {
-        Connection con = DatabaseConnection.getInstance().getConnection();
-        PreparedStatement ps = con.prepareStatement(sql);
+    try (Connection con = new DatabaseConnection().getConnection();
+         PreparedStatement ps = con.prepareStatement(sql)) {
 
         ps.setString(1, user.getFirstname());
         ps.setString(2, user.getLastname());
         ps.setString(3, user.getUsername());
         ps.setString(4, user.getPassword());
         ps.setString(5, user.getEmail());
-        ps.setString(6, user.getRole());
+        ps.setString(6, user.getRole());   // VERY IMPORTANT
         ps.setString(7, user.getContactNumber());
         ps.setString(8, user.getAddress());
 
@@ -30,8 +29,10 @@ public boolean registerUser(User user) {
 
     } catch (Exception e) {
         e.printStackTrace();
-        return false;
+        System.out.println("USER INSERT ERROR: " + e.getMessage());
     }
+
+    return false;
 }
 
 public User login(String username, String password) {
@@ -39,7 +40,7 @@ public User login(String username, String password) {
     String sql = "SELECT * FROM users WHERE username=? AND password=?";
 
     try {
-        Connection con = DatabaseConnection.getInstance().getConnection();
+        Connection con = new DatabaseConnection().getConnection();
         PreparedStatement ps = con.prepareStatement(sql);
 
         ps.setString(1, username);
