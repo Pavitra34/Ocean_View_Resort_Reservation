@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.oceanview.singleton.DatabaseConnection;
 import com.oceanview.model.Reservation;
-import java.sql.Date; 
+
 public class ReservationDAO {
 
     /* ===============================
@@ -27,12 +27,11 @@ public class ReservationDAO {
             ps.setString(3, reservation.getAddress());
             ps.setString(4, reservation.getContactNumber());
             ps.setString(5, reservation.getRoomType());
-            ps.setDate(6, java.sql.Date.valueOf(reservation.getCheckIn()));
-            ps.setDate(7, java.sql.Date.valueOf(reservation.getCheckOut()));
+            ps.setDate(6, Date.valueOf(reservation.getCheckIn()));
+            ps.setDate(7, Date.valueOf(reservation.getCheckOut()));
             ps.setDouble(8, reservation.getTotalAmount());
 
-            int rows = ps.executeUpdate();
-            return rows > 0;
+            return ps.executeUpdate() > 0;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -47,7 +46,6 @@ public class ReservationDAO {
     public List<Reservation> getAllReservations() {
 
         List<Reservation> list = new ArrayList<>();
-
         String sql = "SELECT * FROM reservations ORDER BY id DESC";
 
         try (Connection con = new DatabaseConnection().getConnection();
@@ -56,20 +54,19 @@ public class ReservationDAO {
 
             while (rs.next()) {
 
-                Reservation reservation = new Reservation(
+                Reservation r = new Reservation(
                         rs.getString("reservation_number"),
                         rs.getString("guest_name"),
                         rs.getString("address"),
                         rs.getString("contact_number"),
                         rs.getString("room_type"),
-                        rs.getDate("check_in") != null ? 
-                            rs.getDate("check_in").toLocalDate() : null,
-                        rs.getDate("check_out") != null ? 
-                            rs.getDate("check_out").toLocalDate() : null,
+                        rs.getDate("check_in").toLocalDate(),
+                        rs.getDate("check_out").toLocalDate(),
                         rs.getDouble("total_amount")
                 );
 
-                list.add(reservation);
+                r.setId(rs.getInt("id"));   // 🔥 NOW WORKS
+                list.add(r);
             }
 
         } catch (Exception e) {
@@ -80,24 +77,147 @@ public class ReservationDAO {
     }
 
     /* ===============================
-       DELETE RESERVATION (Optional)
+       GET RESERVATION BY ID
     =============================== */
-    public boolean deleteReservation(String reservationNumber) {
+    public Reservation getReservationById(int id) {
 
-        String sql = "DELETE FROM reservations WHERE reservation_number = ?";
+        Reservation reservation = null;
+        String sql = "SELECT * FROM reservations WHERE id = ?";
 
         try (Connection con = new DatabaseConnection().getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
-            ps.setString(1, reservationNumber);
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
 
-            int rows = ps.executeUpdate();
-            return rows > 0;
+            if (rs.next()) {
+
+                reservation = new Reservation(
+                        rs.getString("reservation_number"),
+                        rs.getString("guest_name"),
+                        rs.getString("address"),
+                        rs.getString("contact_number"),
+                        rs.getString("room_type"),
+                        rs.getDate("check_in").toLocalDate(),
+                        rs.getDate("check_out").toLocalDate(),
+                        rs.getDouble("total_amount")
+                );
+
+                reservation.setId(rs.getInt("id")); // 🔥 NOW SAFE
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return false;
+        return reservation;
     }
+    
+    public double getTotalRevenue() {
+
+    double total = 0;
+
+    String sql = "SELECT SUM(total_amount) AS revenue FROM reservations";
+
+    try (Connection con = new DatabaseConnection().getConnection();
+         PreparedStatement ps = con.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+        if (rs.next()) {
+            total = rs.getDouble("revenue");
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return total;
+}
+    public List<Reservation> searchReservations(String keyword) {
+
+    List<Reservation> list = new ArrayList<>();
+
+    String sql = "SELECT * FROM reservations " +
+                 "WHERE reservation_number LIKE ? " +
+                 "OR guest_name LIKE ? " +
+                 "ORDER BY id DESC";
+
+    try (Connection con = new DatabaseConnection().getConnection();
+         PreparedStatement ps = con.prepareStatement(sql)) {
+
+        ps.setString(1, "%" + keyword + "%");
+        ps.setString(2, "%" + keyword + "%");
+
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+
+            Reservation r = new Reservation(
+                rs.getString("reservation_number"),
+                rs.getString("guest_name"),
+                rs.getString("address"),
+                rs.getString("contact_number"),
+                rs.getString("room_type"),
+                rs.getDate("check_in").toLocalDate(),
+                rs.getDate("check_out").toLocalDate(),
+                rs.getDouble("total_amount")
+            );
+
+            r.setId(rs.getInt("id"));  // Important
+            list.add(r);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}
+    
+    /* ===============================
+   TOTAL RESERVATIONS
+================================= */
+public int getTotalReservations() {
+
+    int total = 0;
+    String sql = "SELECT COUNT(*) FROM reservations";
+
+    try (Connection con = new DatabaseConnection().getConnection();
+         PreparedStatement ps = con.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+        if (rs.next()) {
+            total = rs.getInt(1);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return total;
+}
+
+
+/* ===============================
+   TOTAL GUESTS (Assuming 1 guest per reservation)
+================================= */
+public int getTotalGuests() {
+
+    int total = 0;
+    String sql = "SELECT COUNT(DISTINCT guest_name) FROM reservations";
+
+    try (Connection con = new DatabaseConnection().getConnection();
+         PreparedStatement ps = con.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+        if (rs.next()) {
+            total = rs.getInt(1);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return total;
+}
 }

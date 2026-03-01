@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 public class Reservation {
 
+    private int id;   // 🔥 MUST ADD
     private String reservationNumber;
     private String guestName;
     private String address;
@@ -12,11 +13,19 @@ public class Reservation {
     private LocalDate checkIn;
     private LocalDate checkOut;
     private double totalAmount;
+   
 
-    public Reservation(String reservationNumber, String guestName,
-                       String address, String contactNumber,
-                       String roomType, LocalDate checkIn,
-                       LocalDate checkOut, double totalAmount) {
+
+
+
+    public Reservation(String reservationNumber,
+                       String guestName,
+                       String address,
+                       String contactNumber,
+                       String roomType,
+                       LocalDate checkIn,
+                       LocalDate checkOut,
+                       double totalAmount) {
 
         this.reservationNumber = reservationNumber;
         this.guestName = guestName;
@@ -28,6 +37,8 @@ public class Reservation {
         this.totalAmount = totalAmount;
     }
 
+    // ===== GETTERS =====
+    public int getId() { return id; }
     public String getReservationNumber() { return reservationNumber; }
     public String getGuestName() { return guestName; }
     public String getAddress() { return address; }
@@ -36,4 +47,9 @@ public class Reservation {
     public LocalDate getCheckIn() { return checkIn; }
     public LocalDate getCheckOut() { return checkOut; }
     public double getTotalAmount() { return totalAmount; }
+
+
+    // ===== SETTERS =====
+    public void setId(int id) { this.id = id; }
+ 
 }

@@ -7,6 +7,50 @@
     }
 %>
 
+<%@ page import="com.oceanview.dao.ReservationDAO" %>
+
+<%
+    if(session.getAttribute("role") == null || 
+       !session.getAttribute("role").equals("ADMIN")){
+        response.sendRedirect("../auth/login.jsp");
+        return;
+    }
+%>
+
+<%
+ReservationDAO dao = new ReservationDAO();
+double revenue = dao.getTotalRevenue();
+%>
+
+
+<%@ page session="true" %>
+<%@ page import="com.oceanview.dao.RoomDAO" %>
+<%@ page import="com.oceanview.dao.ReservationDAO" %>
+
+<%
+    if(session.getAttribute("role") == null || 
+       !session.getAttribute("role").equals("ADMIN")){
+        response.sendRedirect("../auth/login.jsp");
+        return;
+    }
+%>
+<%
+ReservationDAO rdao = new ReservationDAO();
+RoomDAO roomDao = new RoomDAO();
+
+int totalReservations = rdao.getTotalReservations();
+int availableRooms = roomDao.getAvailableRoomsCount();
+%>
+
+<%@ page import="com.oceanview.dao.UserDAO" %>
+
+<%
+UserDAO userDao = new UserDAO();
+int totalGuests = userDao.getTotalGuests();
+%>
+
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -27,22 +71,23 @@
 
         <div class="stat-card blue">
             <h4>Total Guests</h4>
-            <p>120</p>
+            <p><%= totalGuests %></p>
         </div>
 
         <div class="stat-card green">
             <h4>Total Reservations</h4>
-            <p>85</p>
+            <p><%= totalReservations %></p>
+          
         </div>
 
         <div class="stat-card orange">
             <h4>Available Rooms</h4>
-            <p>25</p>
+           <p><%= availableRooms %></p>
         </div>
 
         <div class="stat-card red">
             <h4>Revenue (This Month)</h4>
-            <p>LKR 450,000</p>
+            <p> LKR <%= revenue %></p>
         </div>
 
     </div>
@@ -60,6 +105,10 @@
             <a href="<%= request.getContextPath() %>/admin/add-room.jsp" class="action-card">
                 + Add Room
             </a>
+                             <a href="<%= request.getContextPath() %>/admin/manage-rooms.jsp"
+                class="action-card">
+                Manage Rooms
+                </a>
 
             <a href="<%= request.getContextPath() %>/admin/add-reservation.jsp" class="action-card">
                 + Add Reservation
@@ -68,15 +117,22 @@
             <a href="<%= request.getContextPath() %>/admin/reservation-list.jsp" class="action-card">
                 View Reservations
             </a>
+                
+                <a href="<%= request.getContextPath() %>/ViewReceptionistsServlet" class="action-card">
+                 Manage Receptionists
+                </a>
 
             <a href="<%= request.getContextPath() %>/LogoutServlet" class="action-card logout">
                 Logout
             </a>
+
         </div>
+                
 
     </div>
 
 </div>
+                
 
 </body>
 </html>

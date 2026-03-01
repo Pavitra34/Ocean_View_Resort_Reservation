@@ -34,4 +34,5 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
         response.sendRedirect("admin/add-room.jsp?error=exception");
     }
 }
+
 }

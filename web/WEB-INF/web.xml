@@ -60,4 +60,44 @@
     <url-pattern>/AddRoomServlet</url-pattern>
 </servlet-mapping>
 
+<servlet>
+    <servlet-name>LogoutServlet</servlet-name>
+    <servlet-class>com.oceanview.controller.LogoutServlet</servlet-class>
+</servlet>
+
+<servlet-mapping>
+    <servlet-name>LogoutServlet</servlet-name>
+    <url-pattern>/LogoutServlet</url-pattern>
+</servlet-mapping>
+
+<servlet>
+    <servlet-name>ViewReceptionistsServlet</servlet-name>
+    <servlet-class>com.oceanview.controller.ViewReceptionistsServlet</servlet-class>
+</servlet>
+
+<servlet-mapping>
+    <servlet-name>ViewReceptionistsServlet</servlet-name>
+    <url-pattern>/ViewReceptionistsServlet</url-pattern>
+</servlet-mapping>
+
+<servlet>
+    <servlet-name>DeleteStaffServlet</servlet-name>
+    <servlet-class>com.oceanview.controller.DeleteStaffServlet</servlet-class>
+</servlet>
+
+<servlet-mapping>
+    <servlet-name>DeleteStaffServlet</servlet-name>
+    <url-pattern>/DeleteStaffServlet</url-pattern>
+</servlet-mapping>
+
+<servlet>
+    <servlet-name>UpdateStaffServlet</servlet-name>
+    <servlet-class>com.oceanview.controller.UpdateStaffServlet</servlet-class>
+</servlet>
+
+<servlet-mapping>
+    <servlet-name>UpdateStaffServlet</servlet-name>
+    <url-pattern>/UpdateStaffServlet</url-pattern>
+</servlet-mapping>
+
 </web-app>

@@ -1,17 +1,32 @@
-<%-- 
-    Document   : reports
-    Created on : Feb 28, 2026, 8:16:58 PM
-    Author     : spavi
---%>
+<%@ page import="com.oceanview.dao.ReservationDAO" %>
 
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
-    </head>
-    <body>
-        <h1>Hello World!</h1>
-    </body>
-</html>
+<%
+ReservationDAO dao = new ReservationDAO();
+
+double revenue = 0;
+
+String monthParam = request.getParameter("month");
+String yearParam = request.getParameter("year");
+
+if(monthParam != null && yearParam != null){
+
+    int month = Integer.parseInt(monthParam);
+    int year = Integer.parseInt(yearParam);
+
+    revenue = dao.getMonthlyRevenue(month, year);
+}
+%>
+
+<% if(monthParam != null){ %>
+    <h3>Monthly Revenue: LKR <%= revenue %></h3>
+<% } %>
+
+<form method="get">
+    <label>Month:</label>
+    <input type="number" name="month" min="1" max="12" required>
+
+    <label>Year:</label>
+    <input type="number" name="year" required>
+
+    <button type="submit">Generate Report</button>
+</form>
