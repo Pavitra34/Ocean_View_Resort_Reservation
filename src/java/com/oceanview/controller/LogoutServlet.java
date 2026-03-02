@@ -2,9 +2,7 @@ package com.oceanview.controller;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
-
 import java.io.IOException;
-
 
 public class LogoutServlet extends HttpServlet {
 
@@ -12,8 +10,9 @@ public class LogoutServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
+
         if(session != null){
-            session.invalidate();
+            session.invalidate();   // destroy session
         }
 
         response.sendRedirect("auth/login.jsp");
