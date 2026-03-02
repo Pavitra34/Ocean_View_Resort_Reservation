@@ -45,10 +45,7 @@
     <servlet-class>com.oceanview.controller.AddReservationServlet</servlet-class>
 </servlet>
 
-<servlet-mapping>
-    <servlet-name>AddReservationServlet</servlet-name>
-    <url-pattern>/AddReservationServlet</url-pattern>
-</servlet-mapping>
+
 
 <servlet>
     <servlet-name>AddRoomServlet</servlet-name>

@@ -38,5 +38,11 @@ public class LoginServlet extends HttpServlet {
         } else {
             response.sendRedirect("auth/login.jsp?error=true");
         }
+        HttpSession session = request.getSession();
+
+session.setAttribute("username", user.getUsername());
+session.setAttribute("role", user.getRole());
+session.setAttribute("userId", user.getId());   // 🔥 VERY IMPORTANT
     }
+    
 }

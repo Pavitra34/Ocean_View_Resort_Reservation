@@ -90,22 +90,47 @@ tr:hover{
     background:#f9fbfd;
 }
 
-.total{
-    margin-bottom:15px;
+.status{
+    padding:6px 12px;
+    border-radius:20px;
+    font-size:12px;
     font-weight:bold;
 }
 
-.invoice-btn{
-    padding:6px 12px;
-    background:#2ecc71;
-    color:white;
-    text-decoration:none;
-    border-radius:6px;
-    font-size:13px;
+.pending{
+    background:#fff3cd;
+    color:#856404;
 }
 
-.invoice-btn:hover{
-    background:#27ae60;
+.confirmed{
+    background:#d4edda;
+    color:#155724;
+}
+
+.cancelled{
+    background:#f8d7da;
+    color:#721c24;
+}
+
+.action-btn{
+    padding:6px 10px;
+    border-radius:6px;
+    font-size:12px;
+    text-decoration:none;
+    color:white;
+    margin-right:5px;
+}
+
+.confirm{
+    background:#2ecc71;
+}
+
+.cancel{
+    background:#e74c3c;
+}
+
+.invoice{
+    background:#3498db;
 }
 
 .back-btn{
@@ -116,10 +141,6 @@ tr:hover{
     color:white;
     text-decoration:none;
     border-radius:8px;
-}
-
-.back-btn:hover{
-    background:#2c3e50;
 }
 </style>
 
@@ -139,32 +160,42 @@ tr:hover{
         </form>
     </div>
 
-    <div class="total">
+    <div style="margin-bottom:15px;font-weight:bold;">
         Total Reservations: <%= reservations.size() %>
     </div>
 
     <table>
         <tr>
             <th>Reservation No</th>
-            <th>Guest Name</th>
+            <th>Guest</th>
             <th>Room</th>
             <th>Check-In</th>
             <th>Check-Out</th>
-            <th>Total (LKR)</th>
-            <th>Invoice</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Actions</th>
         </tr>
 
 <%
 if(reservations.isEmpty()){
 %>
 <tr>
-    <td colspan="7" style="text-align:center;">
+    <td colspan="8" style="text-align:center;">
         No Reservations Found
     </td>
 </tr>
 <%
 } else {
     for(Reservation r : reservations){
+
+        String status = r.getStatus();
+        String statusClass = "pending";
+
+        if("CONFIRMED".equalsIgnoreCase(status)){
+            statusClass = "confirmed";
+        } else if("CANCELLED".equalsIgnoreCase(status)){
+            statusClass = "cancelled";
+        }
 %>
 
 <tr>
@@ -173,13 +204,41 @@ if(reservations.isEmpty()){
     <td><%= r.getRoomType() %></td>
     <td><%= r.getCheckIn() %></td>
     <td><%= r.getCheckOut() %></td>
-    <td><%= r.getTotalAmount() %></td>
+    <td>LKR <%= r.getTotalAmount() %></td>
+
     <td>
-        <a class="invoice-btn"
-           href="invoice.jsp?id=<%= r.getId() %>"
-           target="_blank">
-           View Invoice
-        </a>
+        <span class="status <%= statusClass %>">
+            <%= status %>
+        </span>
+    </td>
+
+    <td>
+
+        <% if("PENDING".equalsIgnoreCase(status)){ %>
+
+<a class="action-btn confirm"
+   href="booking.jsp?id=<%= r.getId() %>">
+   Confirm
+</a>
+
+            <a class="action-btn cancel"
+               href="<%= request.getContextPath() %>/CancelReservationServlet?id=<%= r.getId() %>"
+               onclick="return confirm('Cancel this reservation?')">
+               Cancel
+            </a>
+
+        <% } %>
+
+        <% if("CONFIRMED".equalsIgnoreCase(status)){ %>
+
+            <a class="action-btn invoice"
+               href="invoice.jsp?id=<%= r.getId() %>"
+               target="_blank">
+               Invoice
+            </a>
+
+        <% } %>
+
     </td>
 </tr>
 

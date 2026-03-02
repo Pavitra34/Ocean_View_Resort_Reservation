@@ -1,11 +1,29 @@
 <%@ page import="com.oceanview.dao.ReservationDAO" %>
 <%@ page import="com.oceanview.model.Reservation" %>
+<%@ page import="com.oceanview.invoice.Invoice" %>
+<%@ page import="com.oceanview.decorator.BasicInvoice" %>
+<%@ page import="com.oceanview.decorator.TaxDecorator" %>
+<%@ page import="com.oceanview.decorator.ServiceChargeDecorator" %>
+<%@ page import="com.oceanview.decorator.QRCodeDecorator" %>
 
 <%
-int id = Integer.parseInt(request.getParameter("id"));
+    int id = Integer.parseInt(request.getParameter("id"));
 
-ReservationDAO dao = new ReservationDAO();
-Reservation r = dao.getReservationById(id);
+    ReservationDAO dao = new ReservationDAO();
+    Reservation r = dao.getReservationById(id);
+
+    if(r == null){
+        out.println("Reservation not found");
+        return;
+    }
+
+    // Create decorated invoice
+    Invoice invoice = new BasicInvoice();
+    invoice = new TaxDecorator(invoice);
+    invoice = new ServiceChargeDecorator(invoice);
+    invoice = new QRCodeDecorator(invoice);
+
+    String billContent = invoice.generate(r);
 %>
 
 <!DOCTYPE html>
@@ -15,36 +33,27 @@ Reservation r = dao.getReservationById(id);
 
 <style>
 body{
-    font-family: Arial, sans-serif;
+    font-family:Arial;
     padding:40px;
+    background:#f4f6f9;
 }
-
 .invoice-box{
     max-width:800px;
     margin:auto;
-    border:1px solid #eee;
+    background:white;
     padding:30px;
+    border-radius:15px;
+    box-shadow:0 5px 25px rgba(0,0,0,0.08);
 }
-
 .header{
     text-align:center;
     margin-bottom:30px;
 }
-
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-td, th{
-    padding:10px;
-    border-bottom:1px solid #ddd;
-}
-
-.total{
-    text-align:right;
-    font-weight:bold;
-    font-size:18px;
+.footer{
+    margin-top:40px;
+    text-align:center;
+    font-size:14px;
+    color:#777;
 }
 </style>
 </head>
@@ -58,50 +67,13 @@ td, th{
         <p>Hotel Invoice</p>
     </div>
 
-    <table>
-        <tr>
-            <td><strong>Reservation No:</strong></td>
-            <td><%= r.getReservationNumber() %></td>
-        </tr>
-        <tr>
-            <td><strong>Guest Name:</strong></td>
-            <td><%= r.getGuestName() %></td>
-        </tr>
-        <tr>
-            <td><strong>Room Type:</strong></td>
-            <td><%= r.getRoomType() %></td>
-        </tr>
-        <tr>
-            <td><strong>Check-In:</strong></td>
-            <td><%= r.getCheckIn() %></td>
-        </tr>
-        <tr>
-            <td><strong>Check-Out:</strong></td>
-            <td><%= r.getCheckOut() %></td>
-        </tr>
-    </table>
-
-    <br><br>
-
-    <table>
-        <tr>
-            <th>Description</th>
-            <th>Amount (LKR)</th>
-        </tr>
-        <tr>
-            <td>Room Charges</td>
-            <td><%= r.getTotalAmount() %></td>
-        </tr>
-    </table>
-
-    <br>
-
-    <div class="total">
-        Total: LKR <%= r.getTotalAmount() %>
+    <div>
+        <%= billContent %>
     </div>
 
-    <br><br>
-    <p>Thank you for staying with us!</p>
+    <div class="footer">
+        Thank you for staying with us!
+    </div>
 
 </div>
 

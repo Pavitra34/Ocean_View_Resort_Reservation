@@ -13,6 +13,8 @@ public class ReservationBuilder {
     private LocalDate checkIn;
     private LocalDate checkOut;
     private double totalAmount;
+    private String status = "PENDING";   // Default status
+    private int userId;
 
     public ReservationBuilder setReservationNumber(String reservationNumber) {
         this.reservationNumber = reservationNumber;
@@ -54,9 +56,28 @@ public class ReservationBuilder {
         return this;
     }
 
+    public ReservationBuilder setStatus(String status) {
+        this.status = status;
+        return this;
+    }
+    
+    public ReservationBuilder setUserId(int userId){
+    this.userId = userId;
+    return this;
+}
+
     public Reservation build() {
-        return new Reservation(reservationNumber, guestName,
-                address, contactNumber, roomType,
-                checkIn, checkOut, totalAmount);
+        return new Reservation(
+                reservationNumber,
+                guestName,
+                address,
+                contactNumber,
+                roomType,
+                checkIn,
+                checkOut,
+                totalAmount,
+                status,
+                userId
+        );
     }
 }

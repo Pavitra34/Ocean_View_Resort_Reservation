@@ -121,6 +121,12 @@ int totalGuests = userDao.getTotalGuests();
                 <a href="<%= request.getContextPath() %>/ViewReceptionistsServlet" class="action-card">
                  Manage Receptionists
                 </a>
+                 
+              <div class="stat-card blue">
+     <a href="help.jsp" style="color:white;text-decoration:none;">
+        Help Center
+    </a>
+    </div>
 
             <a href="<%= request.getContextPath() %>/LogoutServlet" class="action-card logout">
                 Logout
