@@ -113,7 +113,9 @@ body{
     <a href="my-profile.jsp" class="card profile">
         My Profile
     </a>
-
+    <a href="help.jsp" class="card profile">
+        Help Center
+    </a>
 </div>
 
 </div>

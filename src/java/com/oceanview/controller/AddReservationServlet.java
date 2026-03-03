@@ -21,6 +21,15 @@ public class AddReservationServlet extends HttpServlet {
 
         try {
 
+            HttpSession session = request.getSession(false);
+
+            if (session == null || session.getAttribute("userId") == null) {
+                response.sendRedirect(request.getContextPath() + "/auth/login.jsp");
+                return;
+            }
+
+            int userId = Integer.parseInt(request.getParameter("userId"));
+
             String guestName = request.getParameter("guestName");
             String address = request.getParameter("address");
             String contact = request.getParameter("contactNumber");
@@ -30,7 +39,14 @@ public class AddReservationServlet extends HttpServlet {
             LocalDate checkOut = LocalDate.parse(request.getParameter("checkOut"));
 
             if (contact == null || contact.trim().isEmpty()) {
-                response.sendRedirect("admin/add-reservation.jsp?error=contact");
+                response.sendRedirect(request.getContextPath()
+                        + "/admin/add-reservation.jsp?error=contact");
+                return;
+            }
+
+            if (!checkOut.isAfter(checkIn)) {
+                response.sendRedirect(request.getContextPath()
+                        + "/admin/add-reservation.jsp?error=date");
                 return;
             }
 
@@ -41,29 +57,33 @@ public class AddReservationServlet extends HttpServlet {
                     "RES-" + UUID.randomUUID().toString().substring(0, 8);
 
             Reservation reservation = new ReservationBuilder()
-                    .setReservationNumber(reservationNumber)
-                    .setGuestName(guestName)
-                    .setAddress(address)
-                    .setContactNumber(contact)
-                    .setRoomType(roomType)
-                    .setCheckIn(checkIn)
-                    .setCheckOut(checkOut)
-                    .setTotalAmount(total)
-                    .setStatus("PENDING")
-                    .build();
+        .setReservationNumber(reservationNumber)
+        .setGuestName(guestName)
+        .setAddress(address)
+        .setContactNumber(contact)
+        .setRoomType(roomType)
+        .setCheckIn(checkIn)
+        .setCheckOut(checkOut)
+        .setTotalAmount(total)
+        .setStatus("PENDING")
+        .setUserId(userId)
+        .build();
 
             ReservationDAO dao = new ReservationDAO();
             boolean success = dao.addReservation(reservation);
 
             if (success) {
-                response.sendRedirect("admin/add-reservation.jsp?success=true");
+                response.sendRedirect(request.getContextPath()
+                        + "/admin/add-reservation.jsp?success=true");
             } else {
-                response.sendRedirect("admin/add-reservation.jsp?error=dberror");
+                response.sendRedirect(request.getContextPath()
+                        + "/admin/add-reservation.jsp?error=dberror");
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("admin/add-reservation.jsp?error=servererror");
+            response.sendRedirect(request.getContextPath()
+                    + "/admin/add-reservation.jsp?error=servererror");
         }
     }
 }

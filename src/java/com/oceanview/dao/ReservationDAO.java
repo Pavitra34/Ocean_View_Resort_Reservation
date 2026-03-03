@@ -1,16 +1,14 @@
 package com.oceanview.dao;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
 import com.oceanview.singleton.DatabaseConnection;
 import com.oceanview.model.Reservation;
 
 public class ReservationDAO {
 
-    /* ================= ADD RESERVATION ================= */
+    /* ADD RESERVATION */
     public boolean addReservation(Reservation reservation) {
 
         String sql = "INSERT INTO reservations "
@@ -41,127 +39,27 @@ public class ReservationDAO {
         return false;
     }
 
-    /* ================= CONVERT RESULTSET TO OBJECT ================= */
-    private Reservation mapReservation(ResultSet rs) throws Exception {
+    /* UPDATE STATUS */
+public boolean updateStatus(int id, String status) {
 
-        LocalDate checkIn = rs.getDate("check_in") != null
-                ? rs.getDate("check_in").toLocalDate()
-                : null;
+    String sql = "UPDATE reservations SET status=? WHERE id=?";
 
-        LocalDate checkOut = rs.getDate("check_out") != null
-                ? rs.getDate("check_out").toLocalDate()
-                : null;
+    try(Connection con = new DatabaseConnection().getConnection();
+        PreparedStatement ps = con.prepareStatement(sql)) {
 
-        Reservation r = new Reservation(
-                rs.getString("reservation_number"),
-                rs.getString("guest_name"),
-                rs.getString("address"),
-                rs.getString("contact_number"),
-                rs.getString("room_type"),
-                checkIn,
-                checkOut,
-                rs.getDouble("total_amount"),
-                rs.getString("status"),
-                rs.getInt("user_id")   // 🔥 FIXED COLUMN NAME
-        );
+        ps.setString(1, status);
+        ps.setInt(2, id);
 
-        r.setId(rs.getInt("id"));
+        return ps.executeUpdate() > 0;
 
-        return r;
+    } catch(Exception e){
+        e.printStackTrace();
     }
 
-    /* ================= GET ALL ================= */
-    public List<Reservation> getAllReservations() {
+    return false;
+}
 
-        List<Reservation> list = new ArrayList<>();
-        String sql = "SELECT * FROM reservations ORDER BY id DESC";
-
-        try (Connection con = new DatabaseConnection().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                list.add(mapReservation(rs));
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return list;
-    }
-
-    /* ================= GET BY ID ================= */
-    public Reservation getReservationById(int id) {
-
-        String sql = "SELECT * FROM reservations WHERE id=?";
-
-        try (Connection con = new DatabaseConnection().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                return mapReservation(rs);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    /* ================= SEARCH ================= */
-    public List<Reservation> searchReservations(String keyword) {
-
-        List<Reservation> list = new ArrayList<>();
-
-        String sql = "SELECT * FROM reservations "
-                + "WHERE reservation_number LIKE ? OR guest_name LIKE ? "
-                + "ORDER BY id DESC";
-
-        try (Connection con = new DatabaseConnection().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ps.setString(1, "%" + keyword + "%");
-            ps.setString(2, "%" + keyword + "%");
-
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                list.add(mapReservation(rs));
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return list;
-    }
-
-    /* ================= UPDATE STATUS ================= */
-    public boolean updateReservationStatus(int id, String status) {
-
-        String sql = "UPDATE reservations SET status=? WHERE id=?";
-
-        try (Connection con = new DatabaseConnection().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ps.setString(1, status);
-            ps.setInt(2, id);
-
-            return ps.executeUpdate() > 0;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return false;
-    }
-
-    /* ================= GET CONFIRMED BY USER ================= */
+    /* GET CONFIRMED BY USER */
     public List<Reservation> getConfirmedReservationsByUser(int userId) {
 
         List<Reservation> list = new ArrayList<>();
@@ -174,11 +72,25 @@ public class ReservationDAO {
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, userId);
-
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                list.add(mapReservation(rs));
+
+                Reservation r = new Reservation(
+                        rs.getString("reservation_number"),
+                        rs.getString("guest_name"),
+                        rs.getString("address"),
+                        rs.getString("contact_number"),
+                        rs.getString("room_type"),
+                        rs.getDate("check_in").toLocalDate(),
+                        rs.getDate("check_out").toLocalDate(),
+                        rs.getDouble("total_amount"),
+                        rs.getString("status"),
+                        rs.getInt("user_id")
+                );
+
+                r.setId(rs.getInt("id"));
+                list.add(r);
             }
 
         } catch (Exception e) {
@@ -187,77 +99,106 @@ public class ReservationDAO {
 
         return list;
     }
+    /* ================= GET RESERVATION BY ID ================= */
+public Reservation getReservationById(int id) {
 
-    /* ================= DASHBOARD ================= */
+    Reservation reservation = null;
 
-    public int getTotalReservations() {
-        return getCount("SELECT COUNT(*) FROM reservations");
-    }
-
-    public int getTotalGuests() {
-        return getCount("SELECT COUNT(DISTINCT guest_name) FROM reservations");
-    }
-
-    public double getTotalRevenue() {
-
-        String sql = "SELECT SUM(total_amount) FROM reservations WHERE status='CONFIRMED'";
-
-        try (Connection con = new DatabaseConnection().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            if (rs.next()) {
-                return rs.getDouble(1);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return 0;
-    }
-
-    private int getCount(String sql) {
-
-        try (Connection con = new DatabaseConnection().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            if (rs.next()) {
-                return rs.getInt(1);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return 0;
-    }
-    public List<Reservation> getReservationsByUser(int userId) {
-
-    List<Reservation> list = new ArrayList<>();
-
-    String sql = "SELECT * FROM reservations WHERE user_id=? ORDER BY id DESC";
+    String sql = "SELECT * FROM reservations WHERE id=?";
 
     try (Connection con = new DatabaseConnection().getConnection();
          PreparedStatement ps = con.prepareStatement(sql)) {
 
-        ps.setInt(1, userId);
+        ps.setInt(1, id);
         ResultSet rs = ps.executeQuery();
+
+        if (rs.next()) {
+
+            reservation = new Reservation(
+                    rs.getString("reservation_number"),
+                    rs.getString("guest_name"),
+                    rs.getString("address"),
+                    rs.getString("contact_number"),
+                    rs.getString("room_type"),
+                    rs.getDate("check_in").toLocalDate(),
+                    rs.getDate("check_out").toLocalDate(),
+                    rs.getDouble("total_amount"),
+                    rs.getString("status"),
+                    rs.getInt("user_id")   // 🔥 important
+            );
+
+            reservation.setId(rs.getInt("id"));
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return reservation;
+}
+public int getTotalReservations() {
+
+    int count = 0;
+    String sql = "SELECT COUNT(*) FROM reservations";
+
+    try (Connection con = new DatabaseConnection().getConnection();
+         PreparedStatement ps = con.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+        if (rs.next()) {
+            count = rs.getInt(1);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return count;
+}
+public double getTotalRevenue() {
+
+    double revenue = 0;
+
+    String sql = "SELECT SUM(total_amount) FROM reservations " +
+                 "WHERE status IN ('CONFIRMED','CHECKED_OUT')";
+
+    try (Connection con = new DatabaseConnection().getConnection();
+         PreparedStatement ps = con.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+        if (rs.next()) {
+            revenue = rs.getDouble(1);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return revenue;
+}
+public List<Reservation> getAllReservations() {
+
+    List<Reservation> list = new ArrayList<>();
+
+    String sql = "SELECT * FROM reservations ORDER BY id DESC";
+
+    try (Connection con = new DatabaseConnection().getConnection();
+         PreparedStatement ps = con.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
 
         while (rs.next()) {
 
             Reservation r = new Reservation(
-                rs.getString("reservation_number"),
-                rs.getString("guest_name"),
-                rs.getString("address"),
-                rs.getString("contact_number"),
-                rs.getString("room_type"),
-                rs.getDate("check_in") != null ? rs.getDate("check_in").toLocalDate() : null,
-                rs.getDate("check_out") != null ? rs.getDate("check_out").toLocalDate() : null,
-                rs.getDouble("total_amount"),
-                rs.getString("status"),
-                rs.getInt("user_id")
+                    rs.getString("reservation_number"),
+                    rs.getString("guest_name"),
+                    rs.getString("address"),
+                    rs.getString("contact_number"),
+                    rs.getString("room_type"),
+                    rs.getDate("check_in").toLocalDate(),
+                    rs.getDate("check_out").toLocalDate(),
+                    rs.getDouble("total_amount"),
+                    rs.getString("status"),
+                    rs.getInt("user_id")
             );
 
             r.setId(rs.getInt("id"));
@@ -269,5 +210,156 @@ public class ReservationDAO {
     }
 
     return list;
+}
+public List<Reservation> searchReservations(String keyword) {
+
+    List<Reservation> list = new ArrayList<>();
+
+    String sql = "SELECT * FROM reservations "
+               + "WHERE reservation_number LIKE ? "
+               + "OR guest_name LIKE ? "
+               + "ORDER BY id DESC";
+
+    try (Connection con = new DatabaseConnection().getConnection();
+         PreparedStatement ps = con.prepareStatement(sql)) {
+
+        ps.setString(1, "%" + keyword + "%");
+        ps.setString(2, "%" + keyword + "%");
+
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+
+            Reservation r = new Reservation(
+                    rs.getString("reservation_number"),
+                    rs.getString("guest_name"),
+                    rs.getString("address"),
+                    rs.getString("contact_number"),
+                    rs.getString("room_type"),
+                    rs.getDate("check_in").toLocalDate(),
+                    rs.getDate("check_out").toLocalDate(),
+                    rs.getDouble("total_amount"),
+                    rs.getString("status"),
+                    rs.getInt("user_id")
+            );
+
+            r.setId(rs.getInt("id"));
+            list.add(r);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}
+/* ================= GET RESERVATIONS BY USER ================= */
+public List<Reservation> getReservationsByUser(int userId) {
+
+    List<Reservation> list = new ArrayList<>();
+
+    String sql = "SELECT * FROM reservations "
+               + "WHERE user_id=? "
+               + "ORDER BY id DESC";
+
+    try (Connection con = new DatabaseConnection().getConnection();
+         PreparedStatement ps = con.prepareStatement(sql)) {
+
+        ps.setInt(1, userId);
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+
+            Reservation r = new Reservation(
+                    rs.getString("reservation_number"),
+                    rs.getString("guest_name"),
+                    rs.getString("address"),
+                    rs.getString("contact_number"),
+                    rs.getString("room_type"),
+                    rs.getDate("check_in").toLocalDate(),
+                    rs.getDate("check_out").toLocalDate(),
+                    rs.getDouble("total_amount"),
+                    rs.getString("status"),
+                    rs.getInt("user_id")
+            );
+
+            r.setId(rs.getInt("id"));
+            list.add(r);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}
+public int getTodayCheckIns() {
+
+    String sql = "SELECT COUNT(*) FROM reservations " +
+                 "WHERE status='CHECKED_IN'";
+
+    try (Connection con = new DatabaseConnection().getConnection();
+         PreparedStatement ps = con.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+        if (rs.next()) return rs.getInt(1);
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return 0;
+}
+public int getTodayCheckOuts() {
+
+    String sql = "SELECT COUNT(*) FROM reservations " +
+                 "WHERE status='CHECKED_OUT'";
+
+    try (Connection con = new DatabaseConnection().getConnection();
+         PreparedStatement ps = con.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+        if (rs.next()) return rs.getInt(1);
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return 0;
+}
+public int getTodayConfirmed() {
+
+    String sql = "SELECT COUNT(*) FROM reservations " +
+                 "WHERE status='CONFIRMED' " +
+                 "AND DATE(created_at)=CURDATE()";
+
+    try (Connection con = new DatabaseConnection().getConnection();
+         PreparedStatement ps = con.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+        if (rs.next()) return rs.getInt(1);
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return 0;
+}
+public double getTodayRevenue() {
+
+    String sql = "SELECT SUM(total_amount) FROM reservations " +
+                 "WHERE status IN ('CHECKED_IN','CHECKED_OUT')";
+
+    try (Connection con = new DatabaseConnection().getConnection();
+         PreparedStatement ps = con.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+        if (rs.next()) return rs.getDouble(1);
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return 0;
 }
 }

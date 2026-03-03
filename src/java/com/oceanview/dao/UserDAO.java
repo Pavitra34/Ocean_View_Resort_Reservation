@@ -208,4 +208,37 @@ public class UserDAO {
 
         return count;
     }
+   public List<User> getAllGuests() {
+
+    List<User> list = new ArrayList<>();
+
+    String sql = "SELECT * FROM users WHERE role='GUEST'";
+
+    try(Connection con = new DatabaseConnection().getConnection();
+        PreparedStatement ps = con.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery()) {
+
+        while(rs.next()) {
+
+            User user = UserFactory.createUser(
+                    rs.getString("role"),
+                    rs.getString("firstname"),
+                    rs.getString("lastname"),
+                    rs.getString("username"),
+                    rs.getString("password"),
+                    rs.getString("email"),
+                    rs.getString("contact_number"),
+                    rs.getString("address")
+            );
+
+            user.setId(rs.getInt("id"));
+            list.add(user);
+        }
+
+    } catch(Exception e){
+        e.printStackTrace();
+    }
+
+    return list;
+}
 }
