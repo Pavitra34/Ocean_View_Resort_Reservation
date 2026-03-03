@@ -4,10 +4,8 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.WebServlet;
 import java.io.IOException;
-import java.sql.*;
 
 import com.oceanview.dao.ReservationDAO;
-import com.oceanview.singleton.DatabaseConnection;
 
 @WebServlet("/CompleteBookingServlet")
 public class CompleteBookingServlet extends HttpServlet {
@@ -16,12 +14,22 @@ public class CompleteBookingServlet extends HttpServlet {
                           HttpServletResponse response)
             throws ServletException, IOException {
 
-        int id = Integer.parseInt(request.getParameter("id"));
+        try {
 
-        ReservationDAO dao = new ReservationDAO();
-        dao.updateReservationStatus(id, "CONFIRMED");
+            int id = Integer.parseInt(request.getParameter("id"));
 
-        response.sendRedirect(request.getContextPath()
-                + "/admin/reservation-list.jsp");
+            ReservationDAO dao = new ReservationDAO();
+
+            // Complete booking → Confirm
+            dao.updateStatus(id, "CONFIRMED");
+
+            response.sendRedirect(request.getContextPath()
+                    + "/admin/reservation-list.jsp?completed=true");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect(request.getContextPath()
+                    + "/admin/reservation-list.jsp?error=true");
+        }
     }
 }

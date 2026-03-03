@@ -14,8 +14,7 @@ public class Reservation {
     private LocalDate checkOut;
     private double totalAmount;
     private String status;
-    private int userId;  
-    
+    private int userId;   // 🔥 IMPORTANT
 
     public Reservation(String reservationNumber,
                        String guestName,
@@ -25,7 +24,8 @@ public class Reservation {
                        LocalDate checkIn,
                        LocalDate checkOut,
                        double totalAmount,
-                       String status,int userId) {
+                       String status,
+                       int userId) {
 
         this.reservationNumber = reservationNumber;
         this.guestName = guestName;
@@ -36,67 +36,23 @@ public class Reservation {
         this.checkOut = checkOut;
         this.totalAmount = totalAmount;
         this.status = status;
-        this.userId = userId; 
-    }
-
-    // ===================== GETTERS =====================
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getReservationNumber() {
-        return reservationNumber;
-    }
-
-    public String getGuestName() {
-        return guestName;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public String getContactNumber() {
-        return contactNumber;
-    }
-
-    public String getRoomType() {
-        return roomType;
-    }
-
-    public LocalDate getCheckIn() {
-        return checkIn;
-    }
-
-    public LocalDate getCheckOut() {
-        return checkOut;
-    }
-
-    public double getTotalAmount() {
-        return totalAmount;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-      public int getUserId() {   // ✅ ADD THIS
-        return userId;
-    }
-
-  
-    
-
-    // ===================== SETTERS =====================
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-      public void setUserId(int userId) {
         this.userId = userId;
-    } 
+    }
+
+    // GETTERS
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getReservationNumber() { return reservationNumber; }
+    public String getGuestName() { return guestName; }
+    public String getAddress() { return address; }
+    public String getContactNumber() { return contactNumber; }
+    public String getRoomType() { return roomType; }
+    public LocalDate getCheckIn() { return checkIn; }
+    public LocalDate getCheckOut() { return checkOut; }
+    public double getTotalAmount() { return totalAmount; }
+    public String getStatus() { return status; }
+    public int getUserId() { return userId; }
+
+    public void setStatus(String status) { this.status = status; }
 }

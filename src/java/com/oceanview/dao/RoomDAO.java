@@ -152,5 +152,23 @@ public int getAvailableRoomsCount() {
 
     return total;
 }
+public boolean updateRoomStatus(int id, String status) {
+
+    String sql = "UPDATE rooms SET status=? WHERE id=?";
+
+    try(Connection con = new DatabaseConnection().getConnection();
+        PreparedStatement ps = con.prepareStatement(sql)) {
+
+        ps.setString(1, status);
+        ps.setInt(2, id);
+
+        return ps.executeUpdate() > 0;
+
+    } catch(Exception e){
+        e.printStackTrace();
+    }
+
+    return false;
+}
     
 }

@@ -14,12 +14,22 @@ public class ConfirmPaymentServlet extends HttpServlet {
                           HttpServletResponse response)
             throws ServletException, IOException {
 
-        int id = Integer.parseInt(request.getParameter("id"));
+        try {
 
-        ReservationDAO dao = new ReservationDAO();
-        dao.updateReservationStatus(id, "CONFIRMED");
+            int id = Integer.parseInt(request.getParameter("id"));
 
-        response.sendRedirect(request.getContextPath()
-                + "/admin/reservation-list.jsp");
+            ReservationDAO dao = new ReservationDAO();
+
+            // After payment, mark confirmed
+            dao.updateStatus(id, "CONFIRMED");
+
+            response.sendRedirect(request.getContextPath()
+                    + "/admin/reservation-list.jsp?paymentSuccess=true");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect(request.getContextPath()
+                    + "/admin/reservation-list.jsp?error=true");
+        }
     }
 }

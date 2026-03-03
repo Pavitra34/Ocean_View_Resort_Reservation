@@ -6,6 +6,14 @@
         return;
     }
 %>
+<%@ page import="java.util.*" %>
+<%@ page import="com.oceanview.dao.UserDAO" %>
+<%@ page import="com.oceanview.model.User" %>
+
+<%
+UserDAO userDao = new UserDAO();
+List<User> guests = userDao.getAllGuests();
+%>
 
 <!DOCTYPE html>
 <html>
@@ -94,11 +102,37 @@ button:hover{
 
 <form action="<%= request.getContextPath() %>/AddReservationServlet" method="post">
 
-    <input type="text" name="guestName" placeholder="Guest Name" required>
-    <input type="text" name="address" placeholder="Address">
+    <label>Select Guest</label>
+<select id="guestSelect" onchange="fillGuestDetails()" required>
 
-    <!-- FIXED NAME -->
-    <input type="text" name="contact" placeholder="Contact Number" required>
+<option value="">-- Select Guest --</option>
+
+<%
+for(User g : guests){
+%>
+<option value="<%= g.getId() %>"
+        data-name="<%= g.getFirstname() + " " + g.getLastname() %>"
+        data-address="<%= g.getAddress() %>"
+        data-contact="<%= g.getContactNumber() %>">
+
+    <%= g.getFirstname() + " " + g.getLastname() %>
+
+</option>
+<%
+}
+%>
+
+</select>
+    <label>Guest Name</label>
+<input type="text" id="guestName" name="guestName" readonly>
+
+<label>Address</label>
+<input type="text" id="address" name="address" readonly>
+
+<label>Contact Number</label>
+<input type="text" id="contactNumber" name="contactNumber" readonly>
+
+<input type="hidden" id="userId" name="userId">
     
     <select name="roomType">
         <option>Single</option>
@@ -119,6 +153,17 @@ button:hover{
     <a class="back-btn" href="dashboard.jsp">
         Back to Dashboard
     </a>
+<script>
+function fillGuestDetails(){
 
+    var select = document.getElementById("guestSelect");
+    var option = select.options[select.selectedIndex];
+
+    document.getElementById("guestName").value = option.getAttribute("data-name");
+    document.getElementById("address").value = option.getAttribute("data-address");
+    document.getElementById("contactNumber").value = option.getAttribute("data-contact");
+    document.getElementById("userId").value = option.value;
+}
+</script>
 </body>
 </html>
